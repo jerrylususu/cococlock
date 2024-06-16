@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            --global-bg-color: rgb(30, 30, 30);
+            background-color: var(--global-bg-color);
+        }
+
+        .clock {
+            position: relative;
+            width: 200px;
+            height: 200px;
+
+            /* general clock vars */
+            --hour-hand-color: rgb(96, 187, 70);
+            --hour-hand-degrees: 0deg;
+            --minute-hand-color: rgb(249, 3, 80);
+            --minute-hand-degrees: 0deg;
+            --second-hand-color: rgb(8, 57, 113);
+            --second-hand-degrees: 0deg;
+
+            --start: 0deg;
+            --end: 0deg;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .circle1 {
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: conic-gradient(from var(--hour-hand-degrees),
+                    var(--hour-hand-color) 0deg,
+                    var(--global-bg-color));
+        }
+
+        .circle2 {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: conic-gradient(from var(--minute-hand-degrees),
+                    var(--minute-hand-color) 0deg,
+                    var(--global-bg-color));
+        }
+
+        .circle3 {
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            background: conic-gradient(from var(--start),
+                    var(--second-hand-color) 0deg,
+                    var(--global-bg-color));
+        }
+
+        .hand {
+            position: absolute;
+            left: 50%;
+            bottom: 50%;
+            height: 50%;
+            width: 4px;
+            margin-left: -2px;
+            border-radius: 6px;
+            transform-origin: bottom center;
+            transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
+        }
+
+        .second-hand {
+            background-color: var(--second-hand-color);
+            transform: rotate(var(--second-hand-degrees));
+            box-shadow: 6px 0px 12px 2px var(--second-hand-color);
+        }
+
+        .hour-hand {
+            height: 50px;
+            border: 2px solid white;
+            background-color: var(--hour-hand-color);
+            transform: rotate(var(--hour-hand-degrees));
+        }
+
+        .minute-hand {
+            height: 75px;
+            background: var(--minute-hand-color);
+            transform: rotate(var(--minute-hand-degrees));
+            border: 2px solid white;
+        }
+    </style>
+    <title>Centered Circles</title>
+</head>
+
+<body>
+    <div class="clock" id="clock">
+        <div class="circle circle3"></div>
+        <div class="circle circle2"></div>
+        <div class="circle circle1"></div>
+        <div class="hand hour-hand"></div>
+        <div class="hand minute-hand"></div>
+        <div class="hand second-hand"></div>
+    </div>
+
+
+    <script>
+        const clock = document.getElementById("clock");
+
+        function setDate() {
+            // Get time
+            const now = new Date();
+
+            // Calculate clock angles
+            const secondsAngle = now.getSeconds() * 6 + now.getMilliseconds() / 1000 * 6;
+            const minsAngle = now.getMinutes() * 6 + secondsAngle / 60;
+            const hourAngle = ((now.getHours() % 12) / 12) * 360 + minsAngle / 12;
+
+            // Set the hands angles in css variables
+            clock.style.setProperty("--second-hand-degrees", secondsAngle + "deg");
+            clock.style.setProperty("--minute-hand-degrees", minsAngle + "deg");
+            clock.style.setProperty("--hour-hand-degrees", hourAngle + "deg");
+
+            // Conic gradient, find start and end position of gradient
+            let startPosition = secondsAngle;
+            let endPosition = minsAngle - secondsAngle;
+
+            // Check if the big hand is moved besides the small hand, we will use a negative start for the big hand and re-calculate the stop based on that
+            if (secondsAngle > minsAngle) {
+                startPosition = secondsAngle - 360;
+                endPosition = minsAngle - startPosition;
+            }
+
+            // Set the conic gradient variables
+            clock.style.setProperty("--start", startPosition + "deg");
+            clock.style.setProperty("--end", endPosition + "deg");
+        }
+
+        // Tick tick tick
+        setInterval(setDate, 60);
+
+        setDate();
+
+
+    </script>
+</body>
+
+</html>
